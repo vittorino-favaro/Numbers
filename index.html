@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numbers</title>
+<style>
+::-webkit-scrollbar {
+  display: none;
+}
+
+#topBar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow: auto;
+  background-color: black;
+}
+
+#topBar div {
+  display: inline-block;
+  text-align: center;
+  padding: 16px;
+  color: white;
+  cursor: pointer;
+}
+
+#topBar div.selected {
+  background-color: grey;
+}
+
+#bodies > div:first-child {
+  display: none;
+}
+
+#bodies > div.selected:first-child {
+  display: block;
+}
+
+#result {
+  height: 16px;
+}
+
+input {
+  font-size: 16px;
+}
+</style>
+<script>
+let topBarElement;
+let numberElement;
+let resultElement;
+
+function initialize() {
+    topBarElement = document.getElementById("topBar");
+    numberElement = document.getElementById("number");
+    resultElement = document.getElementById("result");
+    selectTopBarItem(1);
+}
+
+let startTopBarPos;
+let currTopBarPos;
+
+function startTopBarScroll(event) {
+  event.preventDefault();
+  startTopBarPos = event.clientX;
+}
+
+function topBarScroll(event) {
+  event.preventDefault();
+
+  if (startTopBarPos) {
+    currTopBarPos = event.clientX;
+    topBarElement.scrollLeft += startTopBarPos - currTopBarPos;
+    startTopBarPos = currTopBarPos;
+  }
+}
+
+function endTopBarScroll(event) {
+  event.preventDefault();
+  startTopBarPos = undefined;
+}
+
+let selectedTopBarItem;
+let selectedBody;
+
+function selectTopBarItem(index) {
+  if (selectedTopBarItem) {
+    selectedTopBarItem.className = undefined;
+    selectedBody.className = undefined;
+  }
+
+  const topBarItem = document.getElementById("topBarItem" + index);
+  topBarItem.className = "selected";
+  selectedTopBarItem = topBarItem;
+  const body = document.getElementById("body" + index);
+  body.className = "selected";
+  selectedBody = body;
+}
+
+function filter(event) {
+  const k = event.key;
+
+  if (k.length == 1) {
+    if (k == "0") {
+      if (numberElement.selectionStart == 0) {
+        event.preventDefault();
+      }
+    } else if (k < "1" || k > "9") {
+      event.preventDefault();
+    }
+  }
+}
+
+function testNumber() {
+  displayResult("");
+
+  const n = numberElement.value;
+
+  if (n == "") {
+    displayResult(null);
+    return;
+  }
+
+  const url = "https://zlcjovulysmv3bcwcnd46wia4i0blboh.lambda-url.eu-north-1.on.aws?number=" + n;
+
+  fetch(url)
+    .then(resp => resp.json())
+    .then(obj => displayResult(obj.result));
+}
+
+function displayResult(result) {
+  let s; 
+
+  switch (result) {
+    case null:
+      s = " is not a valid integer.";
+      break;
+    case undefined:
+      s = " is too large.";
+      break;
+    case true:
+      s = " is prime.";
+      break;
+    case false:
+      s = " is not prime.";
+      break;
+    case "":
+      s = "";
+  }
+
+  resultElement.innerHTML = s;
+}
+
+</script>
+</head>
+<body onload="initialize()">
+<div id="topBar"
+  onmousedown="startTopBarScroll(event)"
+  onmousemove="topBarScroll(event)"
+  onmouseup="endTopBarScroll(event)"
+  onmouseleave="endTopBarScroll(event)"
+>
+  <div id="topBarItem1"  onclick="selectTopBarItem(1)" >Primality Test</div>
+  <div id="topBarItem2"  onclick="selectTopBarItem(2)" >Two           </div>
+  <div id="topBarItem3"  onclick="selectTopBarItem(3)" >Three         </div>
+  <div id="topBarItem4"  onclick="selectTopBarItem(4)" >Four          </div>
+  <div id="topBarItem5"  onclick="selectTopBarItem(5)" >Five          </div>
+  <div id="topBarItem6"  onclick="selectTopBarItem(6)" >Six           </div>
+  <div id="topBarItem7"  onclick="selectTopBarItem(7)" >Seven         </div>
+  <div id="topBarItem8"  onclick="selectTopBarItem(8)" >Eight         </div>
+  <div id="topBarItem9"  onclick="selectTopBarItem(9)" >Nine          </div>
+  <div id="topBarItem10" onclick="selectTopBarItem(10)">Ten           </div>
+  <div id="topBarItem11" onclick="selectTopBarItem(11)">Eleven        </div>
+  <div id="topBarItem12" onclick="selectTopBarItem(12)">Twelve        </div>
+</div>
+<br><br><br><br>
+<div id="bodies">
+  <div id="body1">
+    <div>Miller-Rabin Primality Test</div><br>
+    <label for="number">Number:</label><br>
+    <input id="number" name="number" type="text" value=""
+      inputmode="numeric" oninput="displayResult('')" onkeydown="filter(event)">
+    <div id="result"> </div><br>
+    <input type="button" value="Test" onclick="testNumber()">
+  </div>
+  <div id="body2" ></div>
+  <div id="body3" ></div>
+  <div id="body4" ></div>
+  <div id="body5" ></div>
+  <div id="body6" ></div>
+  <div id="body7" ></div>
+  <div id="body8" ></div>
+  <div id="body9" ></div>
+  <div id="body10"></div>
+  <div id="body11"></div>
+  <div id="body12"></div>
+</div>
+</body>
+</html>
