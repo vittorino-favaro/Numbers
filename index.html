@@ -33,30 +33,67 @@
 
 #bodies > div:first-child {
   display: none;
+  margin-top: 64px;
 }
 
 #bodies > div.selected:first-child {
   display: block;
 }
 
-#result {
-  height: 16px;
+.title {
+  margin-bottom: 16px;
+}
+
+.topLabel {
+  display: block;
 }
 
 input {
   font-size: 16px;
+}
+
+#result {
+  height: 16px;
+  margin-bottom: 16px;
+}
+
+#testArrow {
+  display: inline-block;
+  cursor: default;
+}
+
+#testItems {
+  width: 200px;
+  border: 1px solid black;
+  border-radius: 2px;
+  cursor: default;
+}
+
+#testItems div {
+  padding: 4px;
+}
+
+#testItems div.selected {
+  background-color: lightgrey;
 }
 </style>
 <script>
 let topBarElement;
 let numberElement;
 let resultElement;
+let testElement;
+let testArrowElement;
+let testItemsElement;
 
 function initialize() {
     topBarElement = document.getElementById("topBar");
     numberElement = document.getElementById("number");
-    resultElement = document.getElementById("result");
+    resultElement = document.getElementById("result");  
+    testElement = document.getElementById("test");
+    testArrowElement = document.getElementById("testArrow");
+    testItemsElement = document.getElementById("testItems");
     selectTopBarItem(1);
+    selectTestItem(1);
 }
 
 let startTopBarPos;
@@ -113,8 +150,25 @@ function filter(event) {
   }
 }
 
+function generateNumber() {
+  const nd = Math.floor(Math.random() * 14) + 1;
+  let d = Math.floor(Math.random() * 9) + 1;
+  let s = d.toString();
+
+  for (let i = 2; i <= nd; i++) {
+    d = Math.floor(Math.random() * 10);
+    s += d.toString();
+  }
+
+  numberElement.value = s;
+}
+
 function testNumber() {
   displayResult("");
+
+  if (selectedTestItemIndex == 2) {
+    generateNumber();
+  }
 
   const n = numberElement.value;
 
@@ -153,6 +207,38 @@ function displayResult(result) {
   resultElement.innerHTML = s;
 }
 
+function onTestArrowClick() {
+  testElement.style.display = "none";
+  testArrowElement.style.display = "none";
+  testItemsElement.style.display = "block";
+}
+
+let selectedTestItem;
+let selectedTestItemIndex;
+
+function selectTestItem(index) {
+  if (selectedTestItem) {
+    selectedTestItem.className = undefined;
+  }
+
+  const testItem = document.getElementById("testItem" + index);
+  testItem.className = "selected";
+  selectedTestItem = testItem;
+  selectedTestItemIndex = index;
+  testElement.style.display = "inline-block";
+  testArrowElement.style.display = "inline-block";
+
+  testItemsElement.style.display = "none";
+
+  switch (index) {
+    case 1:
+      testElement.value = "Test";
+      break;
+    case 2:
+      testElement.value = "Generate & Test";
+      break;
+  }
+}
 </script>
 </head>
 <body onload="initialize()">
@@ -175,15 +261,19 @@ function displayResult(result) {
   <div id="topBarItem11" onclick="selectTopBarItem(11)">Eleven        </div>
   <div id="topBarItem12" onclick="selectTopBarItem(12)">Twelve        </div>
 </div>
-<br><br><br><br>
 <div id="bodies">
   <div id="body1">
-    <div>Miller-Rabin Primality Test</div><br>
-    <label for="number">Number:</label><br>
+    <div class="title">Miller-Rabin Primality Test</div>
+    <label class="topLabel" for="number">Number:</label>
     <input id="number" name="number" type="text" value=""
       inputmode="numeric" oninput="displayResult('')" onkeydown="filter(event)">
-    <div id="result"> </div><br>
-    <input type="button" value="Test" onclick="testNumber()">
+    <div id="result"></div>
+    <input id="test" type="button" value="Test" onclick="testNumber()">
+    <div id="testArrow" onclick="onTestArrowClick()">&#128899;</div>
+    <div id="testItems">
+      <div id="testItem1" onclick="selectTestItem(1)">Test</div>
+      <div id="testItem2" onclick="selectTestItem(2)">Generate & Test</div>
+    </div>
   </div>
   <div id="body2" ></div>
   <div id="body3" ></div>
